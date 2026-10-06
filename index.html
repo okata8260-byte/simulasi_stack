@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Interaktif Stack</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #dbeafe);
+            color: #1e293b;
+            min-height: 100vh;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            color: #1d4ed8;
+        }
+
+        .header p {
+            margin: 0;
+            color: #475569;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.10);
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #334155;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 17px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.96);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .button-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .status {
+            margin-top: 18px;
+            padding: 13px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            background: #f1f5f9;
+            border-left: 5px solid #64748b;
+        }
+
+        .status.success {
+            background: #dcfce7;
+            border-left-color: #16a34a;
+            color: #166534;
+        }
+
+        .status.warning {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            border-left-color: #dc2626;
+            color: #991b1b;
+        }
+
+        .status.info {
+            background: #dbeafe;
+            border-left-color: #2563eb;
+            color: #1e40af;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .stack-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            min-height: 420px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px dashed #cbd5e1;
+        }
+
+        .stack-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-label {
+            color: #dc2626;
+            font-weight: bold;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            min-height: 70px;
+            text-align: center;
+        }
+
+        .stack {
+            width: 230px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            border-left: 8px solid #334155;
+            border-right: 8px solid #334155;
+            border-bottom: 8px solid #334155;
+            border-radius: 0 0 10px 10px;
+            padding: 10px;
+            background: #e2e8f0;
+            gap: 8px;
+        }
+
+        .stack-slot {
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #94a3b8;
+            border-radius: 7px;
+            color: #94a3b8;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+
+        .stack-slot.filled {
+            color: white;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: 2px solid #1e40af;
+            font-weight: bold;
+            animation: muncul 0.3s ease;
+        }
+
+        .stack-slot.top-item {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            border-color: #166534;
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.20);
+        }
+
+        .index-label {
+            position: absolute;
+            left: -55px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .top-badge {
+            position: absolute;
+            right: -80px;
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .stack-info {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .info-box {
+            padding: 13px 8px;
+            text-align: center;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-box strong {
+            display: block;
+            font-size: 20px;
+            color: #1d4ed8;
+            margin-top: 4px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 430px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 11px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #1d4ed8;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .operation {
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .operation.push {
+            color: #15803d;
+        }
+
+        .operation.pop {
+            color: #dc2626;
+        }
+
+        .operation.peek {
+            color: #d97706;
+        }
+
+        .operation.clear {
+            color: #7c3aed;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: #64748b;
+            padding: 25px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 18px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        .legend-blue {
+            background: #2563eb;
+        }
+
+        .legend-green {
+            background: #16a34a;
+        }
+
+        .legend-gray {
+            background: #cbd5e1;
+        }
+
+        @keyframes muncul {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 850px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stack-area {
+                min-height: 360px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 18px 10px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .stack {
+                width: 190px;
+            }
+
+            .top-badge {
+                right: -68px;
+                font-size: 11px;
+            }
+
+            .index-label {
+                left: -48px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Simulasi Interaktif Stack</h1>
+            <p>Prinsip kerja: <strong>LIFO</strong> — Last In, First Out</p>
+        </div>
+
+        <div class="card">
+            <h2>Kontrol Stack</h2>
+
+            <div class="control-group">
+                <div class="input-group">
+                    <label for="dataInput">Data yang akan dimasukkan</label>
+                    <input
+                        type="text"
+                        id="dataInput"
+                        placeholder="Contoh: 10, A, Buku"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="capacityInput">Kapasitas Stack</label>
+                    <input
+                        type="number"
+                        id="capacityInput"
+                        value="5"
+                        min="1"
+                        max="20"
+                    >
+                </div>
+
+                <button class="btn-primary" id="setCapacityButton">
+                    Terapkan Kapasitas
+                </button>
+            </div>
+
+            <div class="button-area">
+                <button class="btn-success" id="pushButton">
+                    PUSH
+                </button>
+
+                <button class="btn-danger" id="popButton">
+                    POP
+                </button>
+
+                <button class="btn-warning" id="peekButton">
+                    PEEK
+                </button>
+
+                <button class="btn-secondary" id="clearButton">
+                    CLEAR
+                </button>
+            </div>
+
+            <div class="status info" id="statusMessage">
+                Stack siap digunakan.
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="card">
+                <h2>Visualisasi Stack</h2>
+
+                <div class="stack-area">
+                    <div class="stack-wrapper">
+                        <div class="top-label">
+                            TOP
+                        </div>
+
+                        <div class="stack" id="stackVisual"></div>
+                    </div>
+                </div>
+
+                <div class="stack-info">
+                    <div class="info-box">
+                        Kapasitas
+                        <strong id="capacityInfo">5</strong>
+                    </div>
+
+                    <div class="info-box">
+                        Jumlah Data
+                        <strong id="sizeInfo">0</strong>
+                    </div>
+
+                    <div class="info-box">
+                        Indeks TOP
+                        <strong id="topInfo">-1</strong>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color legend-blue"></span>
+                        Data Stack
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color legend-green"></span>
+                        Data TOP
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color legend-gray"></span>
+                        Slot Kosong
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Riwayat Operasi</h2>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Operasi</th>
+                                <th>Data</th>
+                                <th>Kondisi Stack</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historyBody">
+                            <tr>
+                                <td colspan="5" class="empty-history">
+                                    Belum ada operasi.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stack = [];
+        let capacity = 5;
+        let operationNumber = 0;
+
+        const dataInput = document.getElementById("dataInput");
+        const capacityInput = document.getElementById("capacityInput");
+
+        const pushButton = document.getElementById("pushButton");
+        const popButton = document.getElementById("popButton");
+        const peekButton = document.getElementById("peekButton");
+        const clearButton = document.getElementById("clearButton");
+        const setCapacityButton = document.getElementById("setCapacityButton");
+
+        const stackVisual = document.getElementById("stackVisual");
+        const historyBody = document.getElementById("historyBody");
+        const statusMessage = document.getElementById("statusMessage");
+
+        const capacityInfo = document.getElementById("capacityInfo");
+        const sizeInfo = document.getElementById("sizeInfo");
+        const topInfo = document.getElementById("topInfo");
+
+        function setStatus(message, type = "info") {
+            statusMessage.textContent = message;
+            statusMessage.className = `status ${type}`;
+        }
+
+        function getStackDescription() {
+            if (stack.length === 0) {
+                return "Kosong";
+            }
+
+            // Ditampilkan dari TOP ke BOTTOM
+            return stack.slice().reverse().join(" → ");
+        }
+
+        function renderStack() {
+            stackVisual.innerHTML = "";
+
+            /*
+                Slot ditampilkan dari indeks paling tinggi ke indeks 0.
+                Namun data tetap disimpan dari BOTTOM ke TOP di array.
+            */
+            for (let index = capacity - 1; index >= 0; index--) {
+                const slot = document.createElement("div");
+                slot.classList.add("stack-slot");
+
+                const indexLabel = document.createElement("span");
+                indexLabel.classList.add("index-label");
+                indexLabel.textContent = `Index ${index}`;
+                slot.appendChild(indexLabel);
+
+                if (index < stack.length) {
+                    slot.classList.add("filled");
+                    slot.textContent = stack[index];
+
+                    // Tambahkan kembali label indeks karena textContent menghapus child sebelumnya
+                    slot.appendChild(indexLabel);
+
+                    if (index === stack.length - 1) {
+                        slot.classList.add("top-item");
+
+                        const topBadge = document.createElement("span");
+                        topBadge.classList.add("top-badge");
+                        topBadge.textContent = "← TOP";
+                        slot.appendChild(topBadge);
+                    }
+                } else {
+                    slot.textContent = "Kosong";
+                    slot.appendChild(indexLabel);
+                }
+
+                stackVisual.appendChild(slot);
+            }
+
+            capacityInfo.textContent = capacity;
+            sizeInfo.textContent = stack.length;
+            topInfo.textContent = stack.length === 0 ? "-1" : stack.length - 1;
+        }
+
+        function addHistory(operation, value, description, operationClass) {
+            operationNumber++;
+
+            const emptyRow = historyBody.querySelector(".empty-history");
+
+            if (emptyRow) {
+                emptyRow.parentElement.remove();
+            }
+
+            const row = document.createElement("tr");
+
+            const numberCell = document.createElement("td");
+            numberCell.textContent = operationNumber;
+
+            const operationCell = document.createElement("td");
+            operationCell.textContent = operation;
+            operationCell.classList.add("operation", operationClass);
+
+            const valueCell = document.createElement("td");
+            valueCell.textContent = value || "-";
+
+            const stackCell = document.createElement("td");
+            stackCell.textContent = getStackDescription();
+
+            const descriptionCell = document.createElement("td");
+            descriptionCell.textContent = description;
+
+            row.appendChild(numberCell);
+            row.appendChild(operationCell);
+            row.appendChild(valueCell);
+            row.appendChild(stackCell);
+            row.appendChild(descriptionCell);
+
+            historyBody.prepend(row);
+        }
+
+        function pushData() {
+            const value = dataInput.value.trim();
+
+            if (value === "") {
+                setStatus("Masukkan data terlebih dahulu sebelum melakukan PUSH.", "warning");
+                dataInput.focus();
+                return;
+            }
+
+            if (stack.length >= capacity) {
+                setStatus(
+                    `Stack Overflow: stack sudah penuh. Kapasitas maksimum adalah ${capacity}.`,
+                    "error"
+                );
+
+                addHistory(
+                    "PUSH",
+                    value,
+                    "Gagal — Stack Overflow",
+                    "push"
+                );
+
+                return;
+            }
+
+            stack.push(value);
+            dataInput.value = "";
+
+            renderStack();
+
+            setStatus(
+                `PUSH berhasil. Data "${value}" ditambahkan ke posisi TOP.`,
+                "success"
+            );
+
+            addHistory(
+                "PUSH",
+                value,
+                "Berhasil — data ditambahkan ke TOP",
+                "push"
+            );
+
+            dataInput.focus();
+        }
+
+        function popData() {
+            if (stack.length === 0) {
+                setStatus(
+                    "Stack Underflow: tidak ada data yang dapat diambil.",
+                    "error"
+                );
+
+                addHistory(
+                    "POP",
+                    "-",
+                    "Gagal — Stack Underflow",
+                    "pop"
+                );
+
+                return;
+            }
+
+            const value = stack.pop();
+
+            renderStack();
+
+            setStatus(
+                `POP berhasil. Data "${value}" telah diambil dari TOP.`,
+                "success"
+            );
+
+            addHistory(
+                "POP",
+                value,
+                "Berhasil — data dihapus dari TOP",
+                "pop"
+            );
+        }
+
+        function peekData() {
+            if (stack.length === 0) {
+                setStatus(
+                    "PEEK gagal: stack sedang kosong.",
+                    "warning"
+                );
+
+                addHistory(
+                    "PEEK",
+                    "-",
+                    "Gagal — stack kosong",
+                    "peek"
+                );
+
+                return;
+            }
+
+            const value = stack[stack.length - 1];
+
+            setStatus(
+                `PEEK: data paling atas adalah "${value}". Data tidak dihapus.`,
+                "warning"
+            );
+
+            addHistory(
+                "PEEK",
+                value,
+                "Berhasil — hanya melihat data TOP",
+                "peek"
+            );
+        }
+
+        function clearStack() {
+            if (stack.length === 0) {
+                setStatus(
+                    "Stack sudah dalam keadaan kosong.",
+                    "warning"
+                );
+
+                addHistory(
+                    "CLEAR",
+                    "-",
+                    "Stack sudah kosong",
+                    "clear"
+                );
+
+                return;
+            }
+
+            const oldStack = stack.slice().reverse().join(", ");
+            stack = [];
+
+            renderStack();
+
+            setStatus(
+                `CLEAR berhasil. Data yang dihapus: ${oldStack}.`,
+                "success"
+            );
+
+            addHistory(
+                "CLEAR",
+                oldStack,
+                "Berhasil — semua data dihapus",
+                "clear"
+            );
+        }
+
+        function setStackCapacity() {
+            const newCapacity = Number(capacityInput.value);
+
+            if (!Number.isInteger(newCapacity) || newCapacity < 1) {
+                setStatus(
+                    "Kapasitas harus berupa bilangan bulat minimal 1.",
+                    "warning"
+                );
+
+                capacityInput.value = capacity;
+                return;
+            }
+
+            if (newCapacity < stack.length) {
+                setStatus(
+                    `Kapasitas tidak dapat diubah menjadi ${newCapacity} karena saat ini terdapat ${stack.length} data.`,
+                    "warning"
+                );
+
+                capacityInput.value = capacity;
+                return;
+            }
+
+            capacity = newCapacity;
+            renderStack();
+
+            setStatus(
+                `Kapasitas stack berhasil diubah menjadi ${capacity}.`,
+                "success"
+            );
+
+            addHistory(
+                "KAPASITAS",
+                capacity,
+                `Kapasitas diubah menjadi ${capacity}`,
+                "clear"
+            );
+        }
+
+        pushButton.addEventListener("click", pushData);
+        popButton.addEventListener("click", popData);
+        peekButton.addEventListener("click", peekData);
+        clearButton.addEventListener("click", clearStack);
+        setCapacityButton.addEventListener("click", setStackCapacity);
+
+        dataInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                pushData();
+            }
+        });
+
+        capacityInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                setStackCapacity();
+            }
+        });
+
+        renderStack();
+    </script>
+</body>
+</html>
